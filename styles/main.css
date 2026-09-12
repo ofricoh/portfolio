@@ -733,9 +733,9 @@ video {
     --media-gap-after: clamp(1.75rem, 8vw, 3rem);
     --media-gap-title: clamp(1rem, 5vw, 2rem);
     --stack-gap-about-to-index: clamp(4.75rem, 18vw, 7rem);
-    --contact-fixed-bottom: clamp(1.5rem, 6vw, 2.5rem);
-    /* Scroll run-out past the fixed contact block on Home. */
-    --mobile-home-tail: clamp(7rem, 26vw, 10rem);
+    /* The one gap that separates the last project from the contact block
+       now that the two are stacked. */
+    --stack-gap-index-to-contact: clamp(3.5rem, 13vw, 5.5rem);
     /* Open-project overlay: narrower media, centered over the fixed UI. */
     --mobile-overlay-media-width: 86vw;
     --mobile-overlay-media-gap: clamp(1.5rem, 5vw, 2.75rem);
@@ -757,12 +757,11 @@ video {
     grid-template-areas: unset;
     column-gap: 0;
     align-content: unset;
-    /* Run-out below the last project. Measured against the *large* viewport
-       (toolbars hidden) so the document outgrows the viewport in both iOS
-       toolbar states — otherwise Safari has nothing to scroll and only
-       rubber-bands, and project 07 can never travel up past LET'S TALK. */
-    min-height: calc(100vh + var(--mobile-home-tail));
-    min-height: calc(100lvh + var(--mobile-home-tail));
+    /* The stack sets the page's height; this only keeps a short viewport
+       filled. Measured against the *large* viewport (toolbars hidden) so the
+       floor is the same in both iOS toolbar states. */
+    min-height: 100vh;
+    min-height: 100lvh;
   }
 
   .identity__name {
@@ -772,6 +771,11 @@ video {
   .about {
     align-self: auto;
     margin-block-start: clamp(1.875rem, 6.5vw, 3rem);
+    /* The slot is held at the height of the longest text it can show — the
+       script measures every one of them and writes the value here — so the
+       project list underneath starts at the same y in every state. A shorter
+       description simply leaves the rest of the slot empty. */
+    min-height: var(--about-reserved-height, auto);
   }
 
   .about__body {
@@ -791,18 +795,20 @@ video {
     overflow: visible;
   }
 
+  /* `relative` also makes the about slot the containing block the script
+     measures its reserved height inside. */
   .identity,
   .about {
     position: relative;
     z-index: 2;
   }
 
+  /* Last section of the stack, in ordinary flow below project 07 — the script
+     moves it out of the left column and onto the page for this breakpoint.
+     Indented onto the same rail as the project titles. */
   .contact {
-    position: fixed;
-    left: calc(var(--page-pad-x) + var(--mobile-rail-inset));
-    bottom: var(--contact-fixed-bottom);
-    z-index: 1;
-    margin: 0;
+    margin: var(--stack-gap-index-to-contact) 0 0;
+    padding-inline-start: var(--mobile-rail-inset);
   }
 
   /* Home: the viewport scrolls, not html or body. Giving either of them
@@ -887,7 +893,8 @@ video {
     overscroll-behavior: none;
   }
 
-  /* Lift the index stacking context above fixed contact while a project is open. */
+  /* Lift the index stacking context above the rest of the stack while a
+     project is open, so its media layer sits over everything. */
   html.page--mobile-project-open .index {
     z-index: 4;
   }

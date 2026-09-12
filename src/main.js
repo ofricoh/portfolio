@@ -234,7 +234,7 @@ const PROJECTS = [
 const DEFAULT_CATEGORY = ["GRAPHIC & WEB", "DESIGNER"];
 const ABOUT_PARAGRAPHS = [
   "Hi - I'm Ofri, a graphic and web designer based in Jerusalem.",
-  "I'm interested in ideas that can grow into a whole visual language, and I like figuring out what each project needs and building around it. I work across print, digital design and interaction, often mixing different formats along the way.",
+  "I'm interested in ideas that can grow into a whole visual language. I work across print, digital design and interaction, often mixing different formats along the way.",
   "B.Des in Visual Communication, Bezalel Academy of Arts and Design, Jerusalem.",
 ];
 
@@ -260,6 +260,12 @@ const slots = {
   category: document.querySelector('[data-slot="category"]'),
   about: document.querySelector('[data-slot="about"]'),
   index: document.querySelector('[data-slot="index"]'),
+};
+
+const frame = {
+  page: document.querySelector(".page"),
+  asideInner: document.querySelector(".aside__inner"),
+  contact: document.querySelector(".contact"),
 };
 
 function findProject(id) {
@@ -288,25 +294,17 @@ function renderCategory() {
   });
 }
 
-function renderAbout(project) {
-  const paragraphs = project && project.description.length ? project.description : null;
-
-  if (!paragraphs) {
-    const body = document.createElement("div");
-    body.className = "about__body";
-    ABOUT_PARAGRAPHS.forEach((text) => {
-      const p = document.createElement("p");
-      p.className = "hand";
-      p.textContent = text;
-      body.append(p);
-    });
-    slots.about.replaceChildren(body);
-    return;
-  }
+/* The slot's whole content for one state: the About text when nothing is
+   open, otherwise the project's link and description. Built rather than
+   written into the slot, so the same markup can also be measured off-screen
+   when the reserved height is worked out. */
+function AboutBody(project) {
+  const description = project && project.description.length ? project.description : null;
 
   const body = document.createElement("div");
   body.className = "about__body";
-  if (project.link) {
+
+  if (description && project.link) {
     const p = document.createElement("p");
     p.className = "hand";
     const anchor = document.createElement("a");
@@ -319,13 +317,19 @@ function renderAbout(project) {
     p.append(anchor);
     body.append(p);
   }
-  paragraphs.forEach((text) => {
+
+  (description || ABOUT_PARAGRAPHS).forEach((text) => {
     const p = document.createElement("p");
     p.className = "hand";
     p.textContent = text;
     body.append(p);
   });
-  slots.about.replaceChildren(body);
+
+  return body;
+}
+
+function renderAbout(project) {
+  slots.about.replaceChildren(AboutBody(project));
 }
 
 function LeftInfoColumn(project) {
@@ -691,6 +695,68 @@ function syncMobileMediaOffset() {
   requestAnimationFrame(measureMobileMediaOffset);
 }
 
+/* --- Mobile: contact block placement -------------------------------------
+   On desktop the contact block is the bottom row of the pinned left column,
+   so it has to live inside it. Stacked, it belongs after the project list
+   instead — and `display: contents` on the left column is what previously
+   stopped the list from extending the document in iOS Safari, so the block
+   is moved between the two parents rather than reordered in place.
+   ------------------------------------------------------------------------ */
+
+function syncContactPlacement() {
+  const { page, asideInner, contact } = frame;
+  if (!page || !asideInner || !contact) return;
+  const parent = isMobileViewport() ? page : asideInner;
+  // Last child of either parent: the bottom of the pinned column on desktop,
+  // below the index on mobile.
+  if (contact.parentElement !== parent) parent.append(contact);
+}
+
+/* --- Mobile: reserved description height ---------------------------------
+   Stacked, the project list sits directly under the one slot that carries
+   both the About text and the open project's description, so every change of
+   text there used to move the list. The slot is instead held at the height of
+   the tallest text it can ever show, measured off-screen at the live width so
+   it stays true at any viewport size and once the webfont has loaded.
+   ------------------------------------------------------------------------ */
+
+let aboutProbe = null;
+
+function aboutProbeElement() {
+  if (aboutProbe) return aboutProbe;
+  aboutProbe = document.createElement("div");
+  aboutProbe.setAttribute("aria-hidden", "true");
+  // Absolute inside the slot: it inherits the real measure and typography
+  // without contributing any height of its own while it is being read.
+  aboutProbe.style.cssText =
+    "position:absolute;top:0;left:0;width:100%;visibility:hidden;pointer-events:none;";
+  return aboutProbe;
+}
+
+function measureAboutReserve() {
+  if (!slots.about) return;
+  if (!isMobileViewport()) {
+    slots.about.style.removeProperty("--about-reserved-height");
+    return;
+  }
+
+  const probe = aboutProbeElement();
+  slots.about.append(probe);
+  let tallest = 0;
+  [null, ...visibleProjects()].forEach((project) => {
+    probe.replaceChildren(AboutBody(project));
+    tallest = Math.max(tallest, probe.getBoundingClientRect().height);
+  });
+  probe.replaceChildren();
+  probe.remove();
+
+  slots.about.style.setProperty("--about-reserved-height", `${Math.ceil(tallest)}px`);
+}
+
+function syncAboutReserve() {
+  requestAnimationFrame(measureAboutReserve);
+}
+
 /* --- Portfolio ---------------------------------------------------------- */
 
 function render() {
@@ -802,15 +868,24 @@ if (slots.index) {
     if (isMobileViewport() && state.activeProject) {
       window.scrollTo(0, 0);
     }
+    syncContactPlacement();
+    syncAboutReserve();
     syncMobileProjectScroll();
     syncMobileMediaOffset();
     if (!isMobileViewport() && indexParts.mediaSlot) {
       indexParts.mediaSlot.scrollTop = 0;
     }
   });
-  window.addEventListener("resize", syncMobileMediaOffset);
+  window.addEventListener("resize", () => {
+    syncAboutReserve();
+    syncMobileMediaOffset();
+  });
   // iOS bfcache can restore a locked body after returning from an open project.
   window.addEventListener("pageshow", syncMobileProjectScroll);
   state.activeProject = projectIdFromLocation();
+  syncContactPlacement();
   render();
+  syncAboutReserve();
+  // Cactus Jack decides the measure, so the reserve is only final once it lands.
+  if (document.fonts) document.fonts.ready.then(syncAboutReserve);
 }
