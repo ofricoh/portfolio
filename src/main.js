@@ -100,6 +100,8 @@ const PROJECTS = [
       href: "https://ofricoh.github.io/houdou-nisbi/index.html",
       label: "houdou nisbi",
     },
+    // Mobile only: the video starts in the description area, above the titles.
+    mobileMediaAnchor: "description",
     media: [
       {
         variant: "video",
@@ -173,6 +175,8 @@ const PROJECTS = [
     description: [
       "A website bringing together a selection of works by dancer and choreographer Trisha Brown. The project was created as part of a Web Design course at Bezalel.",
     ],
+    // Mobile only: the video starts in the description area, above the titles.
+    mobileMediaAnchor: "description",
     media: [
       {
         variant: "video",
@@ -682,12 +686,21 @@ function measureMobileMediaOffset() {
     slots.index?.style.removeProperty("--mobile-media-offset");
     return;
   }
-  const activeRow = indexParts.list?.querySelector(".project.is-active");
-  if (!activeRow) return;
   const gap =
     parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--media-gap-title")) ||
     0;
-  const offset = activeRow.getBoundingClientRect().bottom + gap;
+  const project = findProject(state.activeProject);
+  // 03 and 05 begin the same scroll layer at the top of the description
+  // slot, so the video can sit above the titles without moving any type.
+  const fromDescription = project && project.mobileMediaAnchor === "description";
+  const anchor = fromDescription
+    ? slots.about
+    : indexParts.list?.querySelector(".project.is-active");
+  if (!anchor) return;
+  const edge = fromDescription
+    ? anchor.getBoundingClientRect().top
+    : anchor.getBoundingClientRect().bottom;
+  const offset = edge + (fromDescription ? 0 : gap);
   slots.index.style.setProperty("--mobile-media-offset", `${Math.max(0, offset)}px`);
 }
 
@@ -715,9 +728,10 @@ function syncContactPlacement() {
 /* --- Mobile: reserved description height ---------------------------------
    Stacked, the project list sits directly under the one slot that carries
    both the About text and the open project's description, so every change of
-   text there used to move the list. The slot is instead held at the height of
-   the tallest text it can ever show, measured off-screen at the live width so
-   it stays true at any viewport size and once the webfont has loaded.
+   text there used to move the list. The slot is held at the Home About
+   height — currently the longest text that appears there — measured at the
+   live width so it stays true at any viewport size and once the webfont has
+   loaded. Shorter project copy leaves the rest of the slot empty.
    ------------------------------------------------------------------------ */
 
 let aboutProbe = null;
@@ -742,15 +756,12 @@ function measureAboutReserve() {
 
   const probe = aboutProbeElement();
   slots.about.append(probe);
-  let tallest = 0;
-  [null, ...visibleProjects()].forEach((project) => {
-    probe.replaceChildren(AboutBody(project));
-    tallest = Math.max(tallest, probe.getBoundingClientRect().height);
-  });
+  probe.replaceChildren(AboutBody(null));
+  const height = probe.getBoundingClientRect().height;
   probe.replaceChildren();
   probe.remove();
 
-  slots.about.style.setProperty("--about-reserved-height", `${Math.ceil(tallest)}px`);
+  slots.about.style.setProperty("--about-reserved-height", `${Math.ceil(height)}px`);
 }
 
 function syncAboutReserve() {

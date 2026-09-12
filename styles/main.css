@@ -732,10 +732,9 @@ video {
     --media-gap-between: clamp(1.25rem, 6vw, 2.5rem);
     --media-gap-after: clamp(1.75rem, 8vw, 3rem);
     --media-gap-title: clamp(1rem, 5vw, 2rem);
-    --stack-gap-about-to-index: clamp(4.75rem, 18vw, 7rem);
-    /* The one gap that separates the last project from the contact block
-       now that the two are stacked. */
-    --stack-gap-index-to-contact: clamp(3.5rem, 13vw, 5.5rem);
+    /* Same visual beat as the name-to-About gap, reused between the
+       reserved description slot, the project list, and LET'S TALK. */
+    --stack-gap: clamp(1.875rem, 6.5vw, 3rem);
     /* Open-project overlay: narrower media, centered over the fixed UI. */
     --mobile-overlay-media-width: 86vw;
     --mobile-overlay-media-gap: clamp(1.5rem, 5vw, 2.75rem);
@@ -770,12 +769,14 @@ video {
 
   .about {
     align-self: auto;
-    margin-block-start: clamp(1.875rem, 6.5vw, 3rem);
-    /* The slot is held at the height of the longest text it can show — the
-       script measures every one of them and writes the value here — so the
-       project list underneath starts at the same y in every state. A shorter
-       description simply leaves the rest of the slot empty. */
+    margin-block-start: var(--stack-gap);
+    /* Held at the Home About height so the project list starts at the same
+       y in every state. Shorter project copy leaves the rest of the slot empty.
+       Height (not only min-height) so a slightly taller project cannot grow
+       the slot and shift the list. */
+    height: var(--about-reserved-height, auto);
     min-height: var(--about-reserved-height, auto);
+    overflow: visible;
   }
 
   .about__body {
@@ -789,7 +790,7 @@ video {
   .index {
     display: block;
     align-self: auto;
-    margin-block-start: var(--stack-gap-about-to-index);
+    margin-block-start: var(--stack-gap);
     z-index: 2;
     height: auto;
     overflow: visible;
@@ -807,7 +808,7 @@ video {
      moves it out of the left column and onto the page for this breakpoint.
      Indented onto the same rail as the project titles. */
   .contact {
-    margin: var(--stack-gap-index-to-contact) 0 0;
+    margin: var(--stack-gap) 0 0;
     padding-inline-start: var(--mobile-rail-inset);
   }
 
