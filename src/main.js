@@ -532,6 +532,26 @@ function isVideoControlTap(video, event) {
   return y > rect.height - controlBand;
 }
 
+/* The media layer has to be hit-testable for iOS Safari to scroll it, which
+   means it also swallows taps aimed at the interface showing through its
+   transparent areas. Those taps are handed back to whatever sits underneath. */
+function forwardTapBeneathMedia(event) {
+  const { mediaSlot } = indexParts;
+  if (!mediaSlot) return;
+
+  mediaSlot.classList.add("is-tap-through");
+  const beneath = document.elementFromPoint(event.clientX, event.clientY);
+  mediaSlot.classList.remove("is-tap-through");
+  if (!beneath) return;
+
+  const control = beneath.closest("[data-project-id]");
+  if (control) {
+    toggleProject(control.dataset.projectId);
+    return;
+  }
+  if (beneath.closest(".identity__home")) goHome();
+}
+
 function bindMobileMediaClose() {
   const { mediaSlot } = indexParts;
   if (!mediaSlot || mediaSlot.dataset.mobileCloseBound) return;
@@ -540,7 +560,6 @@ function bindMobileMediaClose() {
   mediaSlot.addEventListener(
     "pointerdown",
     (event) => {
-      if (!event.target.closest("img.media, video.media--video")) return;
       mobileMediaGesture.active = true;
       mobileMediaGesture.moved = false;
       mobileMediaGesture.startX = event.clientX;
@@ -573,9 +592,12 @@ function bindMobileMediaClose() {
       return;
     }
 
-    if (event.target.matches("video.media--video") && !isVideoControlTap(event.target, event)) {
-      goHome();
+    if (event.target.matches("video.media--video")) {
+      if (!isVideoControlTap(event.target, event)) goHome();
+      return;
     }
+
+    forwardTapBeneathMedia(event);
   });
 
   mediaSlot.addEventListener("pointercancel", () => {

@@ -734,6 +734,8 @@ video {
     --media-gap-title: clamp(1rem, 5vw, 2rem);
     --stack-gap-about-to-index: clamp(4.75rem, 18vw, 7rem);
     --contact-fixed-bottom: clamp(1.5rem, 6vw, 2.5rem);
+    /* Scroll run-out past the fixed contact block on Home. */
+    --mobile-home-tail: clamp(7rem, 26vw, 10rem);
     /* Open-project overlay: narrower media, centered over the fixed UI. */
     --mobile-overlay-media-width: 86vw;
     --mobile-overlay-media-gap: clamp(1.5rem, 5vw, 2.75rem);
@@ -755,6 +757,12 @@ video {
     grid-template-areas: unset;
     column-gap: 0;
     align-content: unset;
+    /* Run-out below the last project. Measured against the *large* viewport
+       (toolbars hidden) so the document outgrows the viewport in both iOS
+       toolbar states — otherwise Safari has nothing to scroll and only
+       rubber-bands, and project 07 can never travel up past LET'S TALK. */
+    min-height: calc(100vh + var(--mobile-home-tail));
+    min-height: calc(100lvh + var(--mobile-home-tail));
   }
 
   .identity__name {
@@ -797,20 +805,21 @@ video {
     margin: 0;
   }
 
-  /* Home: native iOS document scroll — content height, not viewport height. */
+  /* Home: the viewport scrolls, not html or body. Giving either of them
+     `overflow-y: auto` with `height: auto` makes them auto-height scroll
+     containers that can never overflow, which is what killed touch scrolling
+     in iOS Safari while Chrome's emulator still scrolled. */
   html:not(.page--mobile-project-open),
   html:not(.page--mobile-project-open) body {
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: auto;
-    min-height: 100%;
-    overscroll-behavior: auto;
-  }
-
-  html:not(.page--mobile-project-open) body {
     position: static;
-    width: auto;
     inset: auto;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
+    touch-action: auto;
   }
 
   /* Portrait documentation photographs are unreadable two-up on a phone, so
@@ -883,18 +892,24 @@ video {
     z-index: 4;
   }
 
-  /* Full-viewport scroll shell — transparent except for the media itself. */
+  /* Full-viewport scroll shell — transparent except for the media itself.
+     It must be hit-testable (`pointer-events: auto`): iOS Safari attaches its
+     scroll gesture to the element under the finger, so a `pointer-events: none`
+     scroller passes the touch through to the locked page and never scrolls. */
   html.page--mobile-project-open .index__media:not(:empty) {
     position: fixed;
     inset: 0;
     z-index: 5;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     touch-action: pan-y;
     scrollbar-width: none;
-    pointer-events: none;
+    pointer-events: auto;
     background: transparent;
   }
 
@@ -907,10 +922,14 @@ video {
     flex-direction: column;
     align-items: center;
     padding-block-start: 0;
-    pointer-events: none;
+    /* Part of the scroll surface, so a drag anywhere over it pans the layer. */
+    pointer-events: auto;
+    touch-action: pan-y;
   }
 
-  /* Transparent lead-in keeps the fixed UI visible and tappable at scroll top. */
+  /* Transparent lead-in keeps the fixed UI visible and tappable at scroll top:
+     this is the one region that stays click-through, so project rows underneath
+     can still be tapped while the layer itself remains scrollable. */
   html.page--mobile-project-open .index__media .project__expanded::before {
     content: "";
     display: block;
@@ -952,6 +971,15 @@ video {
   html.page--mobile-project-open .index__media .media,
   html.page--mobile-project-open .index__media .media-grid {
     pointer-events: auto;
+  }
+
+  /* Momentary hit-test bypass: the layer and its descendants step aside for a
+     single `elementFromPoint`, so a tap on a transparent area can be handed to
+     the interface underneath. Must stay after every `pointer-events: auto`
+     rule above it — they carry the same specificity, so order decides. */
+  html.page--mobile-project-open .index__media.is-tap-through,
+  html.page--mobile-project-open .index__media.is-tap-through * {
+    pointer-events: none;
   }
 
 }
