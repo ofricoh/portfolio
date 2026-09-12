@@ -628,18 +628,27 @@ function syncProjectMedia(activeId) {
   }
 }
 
+function clearMobileScrollLock() {
+  const { documentElement, body } = document;
+  documentElement.classList.remove("page--mobile-project-open");
+  documentElement.style.overflow = "";
+  documentElement.style.height = "";
+  body.style.top = "";
+  body.style.position = "";
+  body.style.width = "";
+  body.style.inset = "";
+  body.style.overflow = "";
+  body.style.height = "";
+}
+
 function syncMobileProjectScroll() {
   const shouldLock = isMobileViewport() && state.activeProject !== null;
-  document.documentElement.classList.toggle("page--mobile-project-open", shouldLock);
   if (shouldLock) {
+    document.documentElement.classList.add("page--mobile-project-open");
     document.body.style.top = "0px";
     return;
   }
-  document.body.style.top = "";
-  document.body.style.position = "";
-  document.body.style.width = "";
-  document.body.style.inset = "";
-  document.body.style.overflow = "";
+  clearMobileScrollLock();
 }
 
 function measureMobileMediaOffset() {
@@ -778,6 +787,8 @@ if (slots.index) {
     }
   });
   window.addEventListener("resize", syncMobileMediaOffset);
+  // iOS bfcache can restore a locked body after returning from an open project.
+  window.addEventListener("pageshow", syncMobileProjectScroll);
   state.activeProject = projectIdFromLocation();
   render();
 }

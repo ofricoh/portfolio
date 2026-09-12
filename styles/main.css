@@ -739,22 +739,22 @@ video {
     --mobile-overlay-media-gap: clamp(1.5rem, 5vw, 2.75rem);
   }
 
-  /* The left block dissolves into the page grid so the stacked order stays
-     identity -> about -> index (contact is fixed to the viewport). */
+  /* Block flow — every Home section contributes real height on iOS Safari.
+     (display:contents + grid prevented the project list from extending the doc.) */
   .aside,
   .aside__inner {
-    display: contents;
+    display: block;
   }
 
   .page {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto;
-    grid-template-areas:
-      "identity"
-      "about"
-      "index";
-    row-gap: 0;
-    align-content: start;
+    display: block;
+    min-height: 0;
+    height: auto;
+    grid-template-columns: unset;
+    grid-template-rows: unset;
+    grid-template-areas: unset;
+    column-gap: 0;
+    align-content: unset;
   }
 
   .identity__name {
@@ -775,8 +775,12 @@ video {
   }
 
   .index {
+    display: block;
+    align-self: auto;
     margin-block-start: var(--stack-gap-about-to-index);
     z-index: 2;
+    height: auto;
+    overflow: visible;
   }
 
   .identity,
@@ -793,23 +797,20 @@ video {
     margin: 0;
   }
 
-  /* Home: ordinary document scroll — no viewport trap or scroll lock. */
-  html:not(.page--mobile-project-open) {
+  /* Home: native iOS document scroll — content height, not viewport height. */
+  html:not(.page--mobile-project-open),
+  html:not(.page--mobile-project-open) body {
+    overflow-x: hidden;
     overflow-y: auto;
     height: auto;
+    min-height: 100%;
+    overscroll-behavior: auto;
   }
 
   html:not(.page--mobile-project-open) body {
     position: static;
-    overflow-y: visible;
-    height: auto;
-    overscroll-behavior: auto;
-  }
-
-  html:not(.page--mobile-project-open) .page {
-    min-height: 100svh;
-    height: auto;
-    overflow: visible;
+    width: auto;
+    inset: auto;
   }
 
   /* Portrait documentation photographs are unreadable two-up on a phone, so
