@@ -1,0 +1,931 @@
+/* ==========================================================================
+   DESIGN TOKENS
+   Every value is derived from the reference composition, whose canvas is
+   1512 x 853 px. The vw figures are the reference pixel value / 1512, so the
+   whole composition scales proportionally and keeps the reference geometry.
+   ========================================================================== */
+
+:root {
+  /* ---- Colour ---- */
+  --background: #fbf7f7;
+  --foreground: #242226;
+
+  /* ---- Families ---- */
+  --font-sans: "Helvetica", sans-serif;
+  --font-hand: "Cactus Jack", cursive;
+
+  /* ---- Page frame (ref: 68px sides, 44px top, 28px bottom) ---- */
+  --page-pad-x: clamp(1.25rem, 4.5vw, 5.5rem);
+  --page-pad-top: clamp(1.25rem, 2.91vw, 3.5rem);
+  /* Bottom padding doubles as the "how low do the contact links sit" control,
+     since the contact block is the only thing touching the bottom edge. */
+  --page-pad-bottom: clamp(1rem, 1.85vw, 2.25rem);
+
+  /* ---- Type sizes (ref: 70 / 50 / 30 / 13 px) ---- */
+  --fs-project: clamp(2.25rem, 4.63vw, 6rem);
+  --fs-name: clamp(1.375rem, 2.4vw, 3.125rem);
+  --fs-hand: clamp(1.125rem, 1.984vw, 2.5rem);
+  --fs-link: clamp(0.6875rem, 0.86vw, 1.125rem);
+
+  /* ---- Line heights ---- */
+  --lh-project: 1.12; /* ref: 78.3px baseline rhythm at 70px */
+  --row-pitch: calc(var(--fs-project) * var(--lh-project));
+  --lh-name: 1.1; /* "auto" */
+  --lh-hand: 0.6; /* ref: 18px line-height at 30px */
+  --lh-hand-body: 0.71; /* ref: 21px line advance in the project description */
+  --lh-link: 1.2;
+
+  /* ---- Column split (ref: left 648px, index 728px, no gutter) ---- */
+  --col-left: 1fr;
+  --col-index: 1.122fr;
+  --col-gap: 0px;
+
+  /* ---- Left column vertical rhythm ----
+     A fixed spacer anchors the about/description block's TOP edge, so a long
+     project description grows downward without shifting anything above it.
+     Ref: 174px from the name's baseline box to the top of the text block. */
+  --space-identity-to-about: clamp(4rem, 11.5vw, 14rem);
+
+  /* The label slot always reserves two lines, so switching between the
+     two-line default and a one-line project category cannot shift the name
+     or the text block below it. */
+  --category-lines: 2;
+  --category-block-height: calc(var(--fs-hand) * var(--lh-hand) * var(--category-lines));
+
+  /* ---- Left column horizontal offsets (percentages of the left column) ---- */
+  --tagline-indent: 29.8%; /* ref: 261px from the page edge */
+  --about-indent: 14%; /* ref: 182px from the page edge */
+
+  /* ---- Left column text block ---- */
+  --about-text-width: clamp(14.5rem, 20vw, 24.5rem);
+  --about-paragraph-gap: clamp(0.875rem, 1.43vw, 1.75rem); /* ref: 21px */
+
+  /* ---- Small gaps ---- */
+  --tagline-to-name: clamp(1rem, 2.84vw, 3.375rem); /* ref: 43px */
+  --contact-label-to-links: clamp(0.9rem, 1.56vw, 2rem); /* ref: 23px — LET'S TALK sits close to the links */
+  --contact-lift: clamp(0.75rem, 1.6vw, 2rem); /* raises the whole contact block off the page floor */
+  --contact-links-gap: clamp(1rem, 2.05vw, 2.5rem); /* ref: 31px */
+
+  /* ---- Project index internals ---- */
+  --index-gap: clamp(1.5rem, 2.5vw, 3rem); /* minimum title-to-number gap */
+  --index-number-width: 2ch; /* keeps titles from shifting */
+
+  /* ---- The drawn line (hover + open project) ----
+     A stroke pulled across the capitals, not an underline. The asset is a 3:1
+     canvas with the line drawn through the middle of it, so the mark is placed
+     by its stroke rather than by its box: the image is scaled to the title,
+     then pulled up by where the stroke sits inside it. Everything is relative,
+     so the line keeps its grip on the letters at any type size. */
+  /* Of the title. The drawn stroke only covers the middle 94% of its canvas,
+     so this is set past 106% to buy the overshoot: the ink itself reaches
+     about 2.5% of the title's width past the first and last letter. */
+  --line-width: 112%;
+  --line-stroke-center: 49.3%; /* the stroke's place in the asset */
+  --line-drop: 0.02em; /* to the middle of the capitals */
+  /* The asset is drawn hairline-thin; this puts a touch more ink on it
+     without touching its wobble, since it thickens the drawn shape itself
+     rather than replacing it with a rule. */
+  --line-weight: 0.4px;
+
+  /* ---- Expanded project media ----
+     Widths and offsets are percentages of the index column, so the media
+     keeps its relationship to the title grid at every viewport width.
+     Measured off the open-project reference: the scan starts 26.2% of the
+     column left of the titles and is 122.3% of the column wide. */
+  --media-bleed-start: 26.2%;
+  --media-block-width: 122.3%;
+  /* The GIF is sized off the scan, not the column, so the reference
+     relationship survives every viewport width. Ref: 873 / 922. */
+  --media-gif-scale: 0.947;
+  --media-gif-width: calc(var(--media-block-width) * var(--media-gif-scale));
+
+  --media-gap-title: clamp(0.5rem, 1.8vw, 2.5rem); /* title row -> scan */
+  --media-gap-between: clamp(0.5rem, 2.05vw, 2.75rem); /* scan -> gif */
+  --media-gap-after: clamp(1.5rem, 4.43vw, 5.5rem); /* trailing space after media */
+  /* The one gap inside a stack of documentation images — the same value
+     between the wide plates and between the grid's rows and columns, so the
+     whole block reads as a single sequence. */
+  --media-gap-grid: clamp(0.5rem, 1.19vw, 1.5rem);
+
+  /* ---- Mobile stack rhythm ---- */
+  --stack-gap: clamp(3rem, 12vw, 6rem);
+}
+
+/* ==========================================================================
+   RESET
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--background);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  /* `clip` rather than `hidden`: it contains the media's left bleed without
+     turning the body into a scroll container, which would break the pinned
+     left column. */
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+p,
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video {
+  display: block;
+  max-width: none;
+}
+
+/* ==========================================================================
+   PAGE COMPOSITION
+   Two columns: the pinned left block and the project index. The document
+   itself is what scrolls — there is no nested scrolling region anywhere,
+   so the wheel works wherever the cursor happens to be.
+   ========================================================================== */
+
+.page {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--page-pad-top) var(--page-pad-x) var(--page-pad-bottom);
+  column-gap: var(--col-gap);
+  grid-template-columns: var(--col-left) var(--col-index);
+  grid-template-areas: "aside index";
+}
+
+.aside {
+  grid-area: aside;
+  min-width: 0;
+  /* Above the index, so the scan's left bleed and the pinned run's backdrop
+     can never paint over the left column. */
+  z-index: 2;
+}
+
+/* ---- Shared handwritten style ---- */
+
+.hand {
+  font-family: var(--font-hand);
+  font-weight: 400;
+  font-size: var(--fs-hand);
+  line-height: var(--lh-hand);
+  letter-spacing: 0;
+  color: var(--foreground);
+}
+
+/* ==========================================================================
+   IDENTITY — category label above and to the right of the name
+   ========================================================================== */
+
+.identity {
+  grid-area: identity;
+  min-width: 0;
+}
+
+.identity__category {
+  margin-inline-start: var(--tagline-indent);
+  margin-block-end: var(--tagline-to-name);
+  min-height: var(--category-block-height);
+}
+
+.identity__name {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-name);
+  line-height: var(--lh-name);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.identity__home {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.identity__home:focus-visible {
+  outline: none;
+}
+
+.identity__home:hover,
+.identity__home:focus-visible {
+  --line-drop: 0.02em;
+}
+
+.identity__home:hover .project__line,
+.identity__home:focus-visible .project__line {
+  display: block;
+}
+
+/* ==========================================================================
+   ABOUT / PROJECT DESCRIPTION
+   One slot, two contents: the static About placeholder or the active
+   project's description. Top-anchored so both start at the same y.
+   ========================================================================== */
+
+.about {
+  grid-area: about;
+  align-self: start;
+  margin-inline-start: var(--about-indent);
+  min-width: 0;
+}
+
+/* Static placeholder — deliberately non-interactive, no hover of any kind. */
+.about__text {
+  line-height: var(--lh-hand-body);
+}
+
+.about__body {
+  max-width: var(--about-text-width);
+}
+
+.about__body p {
+  line-height: var(--lh-hand-body);
+}
+
+.about__body p + p {
+  margin-block-start: var(--about-paragraph-gap);
+}
+
+.about__link {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  color: var(--foreground);
+  --line-drop: calc(0.02em + 4px);
+}
+
+.about__link:hover .project__line,
+.about__link:focus-visible .project__line {
+  display: block;
+}
+
+/* ==========================================================================
+   PROJECT INDEX
+   ========================================================================== */
+
+.index {
+  grid-area: index;
+  align-self: start;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.index__nav {
+  position: relative;
+}
+
+.index__list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Open-state overlay columns — mirror row geometry, split pointer from paint. */
+.index__numbers,
+.index__titles {
+  display: none;
+}
+
+.index__numbers-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(var(--index-number-width), auto);
+  column-gap: var(--index-gap);
+  align-items: baseline;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-project);
+  line-height: var(--lh-project);
+  letter-spacing: 0;
+  color: var(--foreground);
+}
+
+.index__number {
+  grid-column: 2;
+  justify-self: end;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: none;
+  text-align: right;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.index__titles-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(var(--index-number-width), auto);
+  column-gap: var(--index-gap);
+  align-items: baseline;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-project);
+  line-height: var(--lh-project);
+  letter-spacing: 0;
+}
+
+.index__title-hit {
+  grid-column: 1;
+  justify-self: start;
+  width: 100%;
+  min-height: var(--row-pitch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: none;
+  cursor: pointer;
+}
+
+.project__link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(var(--index-number-width), auto);
+  column-gap: var(--index-gap);
+  align-items: baseline;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: none;
+  text-align: start;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-project);
+  line-height: var(--lh-project);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.project__link:focus-visible {
+  outline: none;
+}
+
+/* Shrunk to its text so the mark can be sized against the letters instead of
+   against the whole column. The row is start-aligned either way, so no title
+   moves. */
+.project__title {
+  position: relative;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.project__line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--line-width);
+  height: auto;
+  transform: translate(-50%, calc(-1 * var(--line-stroke-center) + var(--line-drop)));
+  filter: drop-shadow(0 var(--line-weight) 0 var(--foreground))
+    drop-shadow(0 calc(-1 * var(--line-weight)) 0 var(--foreground));
+  pointer-events: none;
+  display: none;
+}
+
+/* One line at a time under the cursor, and one that stays for the open
+   project — the two can overlap while the reader is pointing elsewhere. */
+.project__link:hover .project__line,
+.project__link:focus-visible .project__line,
+.project.is-active .project__line {
+  display: block;
+}
+
+.project__number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The type itself never reacts — the drawn line carries the whole state. */
+.project__title,
+.project__number {
+  color: var(--foreground);
+}
+
+/* ---- Open project: hide inactive titles, keep every row slot in place ---- */
+
+.index--open .project:not(.is-active) .project__title {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.index--open .project:not(.is-active) .project__line {
+  display: none;
+}
+
+.index--open .project.is-title-hovered:not(.is-active) .project__line {
+  display: block;
+}
+
+/* Pull media up beneath the active title. Offset tracks the active row and
+   total row count so extra navigation rows never shift where media starts. */
+.index--open .index__media:not(:empty) {
+  position: relative;
+  z-index: 2;
+  margin-block-start: calc(
+    -1 * (var(--index-row-count, 0) - var(--active-row-index, 0) - 1) * var(--row-pitch) +
+      var(--media-gap-title)
+  );
+}
+
+.index--open .index__nav {
+  z-index: 1;
+}
+
+.index--open .project__title {
+  position: relative;
+  z-index: 1;
+}
+
+/* In-flow rows stay for layout and screen-reader labels; overlays carry clicks. */
+.index--open .project__link {
+  pointer-events: none;
+}
+
+.index--open .project__number {
+  color: transparent;
+  pointer-events: none;
+}
+
+.index--open .index__titles {
+  display: block;
+  position: sticky;
+  top: var(--page-pad-top);
+  z-index: 3;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.index--open .index__title-hit {
+  pointer-events: auto;
+}
+
+.index--open .index__numbers {
+  display: block;
+  position: sticky;
+  top: var(--page-pad-top);
+  z-index: 4;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.index--open .index__number {
+  pointer-events: auto;
+}
+
+.index--open .project__expanded {
+  padding-block-start: 0;
+  padding-block-end: var(--media-gap-after);
+}
+
+/* ---- Expanded project media ---- */
+
+.project__expanded {
+  padding-block: var(--media-gap-title) var(--media-gap-after);
+}
+
+.media {
+  width: 100%;
+  height: auto;
+}
+
+/* The media block: it bleeds left of the title column and stops just inside
+   the page's right margin, exactly as in the open-project reference. The
+   scan, any full-width plate and the documentation grid all take these same
+   two edges, so a project's images line up down the whole page. */
+.media--scan,
+.media--wide,
+.media--video,
+.media-grid {
+  width: var(--media-block-width);
+  margin-inline-start: calc(-1 * var(--media-bleed-start));
+}
+
+/* A run of plates and the grid under them read as one sequence, so they sit
+   on the same small gap the grid uses between its own images. A grid that
+   opens the block keeps only the expanded area's top padding. */
+.media--wide + .media--wide,
+.media--wide + .media-grid,
+.media--scan + .media--scan,
+.media--scan + .media-grid,
+.media--gif + .media-grid {
+  margin-block-start: var(--media-gap-grid);
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--media-gap-grid);
+}
+
+/* The GIF sits under the scan, centred on the scan's span rather than on the
+   index column, so the two images share one optical axis. */
+.media--gif {
+  width: var(--media-gif-width);
+  margin-block-start: var(--media-gap-between);
+  margin-inline-start: calc(
+    (var(--media-block-width) - var(--media-gif-width)) / 2 - var(--media-bleed-start)
+  );
+}
+
+/* Double Life only — larger GIF, same centre axis as the scan; tight gap
+   beneath the scan so the pair reads as one unit. */
+#project-media-double-life {
+  --media-gif-scale: 1.2;
+  --media-gif-width: calc(var(--media-block-width) * 1.2);
+  --media-gap-between: clamp(-10rem, -12vw, -7rem);
+}
+
+/* Illustrations only — slightly larger GIF, slightly closer to 05.png. */
+#project-media-illustrations {
+  --media-gif-scale: 1.28;
+  --media-gif-width: calc(var(--media-block-width) * 1.28);
+  --media-gap-between: clamp(-10rem, -12vw, -7rem);
+}
+
+/* ==========================================================================
+   CONTACT
+   ========================================================================== */
+
+.contact {
+  grid-area: contact;
+  margin-block-end: var(--contact-lift);
+  min-width: 0;
+}
+
+.contact__label {
+  margin-block-end: var(--contact-label-to-links);
+}
+
+.contact__links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--contact-links-gap);
+  row-gap: 0.5em;
+  font-size: var(--fs-link);
+  line-height: var(--lh-link);
+  font-weight: 400;
+}
+
+.contact__link {
+  text-decoration: none;
+  color: var(--foreground);
+}
+
+.contact__link:hover,
+.contact__link:focus-visible {
+  text-decoration: underline;
+  color: var(--foreground);
+}
+
+/* ==========================================================================
+   DESKTOP / LAPTOP — pinned left block + sticky open-project nav
+   ========================================================================== */
+
+@media (min-width: 769px) {
+  .aside__inner {
+    position: sticky;
+    top: var(--page-pad-top);
+    height: calc(100vh - var(--page-pad-top) - var(--page-pad-bottom));
+    display: grid;
+    grid-template-rows:
+      auto
+      var(--space-identity-to-about)
+      minmax(0, 1fr)
+      auto;
+    grid-template-areas:
+      "identity"
+      "."
+      "about"
+      "contact";
+  }
+
+  /* Same sticky geometry in both states — no open-state padding or offset changes.
+     Sticky on the nav wrapper; titles and the number overlay share its box. */
+  .index__nav {
+    position: sticky;
+    top: var(--page-pad-top);
+  }
+
+}
+
+/* ==========================================================================
+   LAPTOP — same composition, tighter offsets
+   ========================================================================== */
+
+@media (max-width: 1280px) {
+  :root {
+    --tagline-indent: 24%;
+    --about-indent: 9%;
+    --about-text-width: clamp(13.5rem, 19vw, 23rem);
+    --index-gap: clamp(1.25rem, 2vw, 2.5rem);
+  }
+}
+
+/* ==========================================================================
+   TABLET — still two columns, more compact left block
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  :root {
+    --col-left: 1fr;
+    --col-index: 1.35fr;
+    --tagline-indent: 17%;
+    --about-indent: 4%;
+    --about-text-width: clamp(12.5rem, 17vw, 20rem);
+    --space-identity-to-about: clamp(3rem, 9vw, 8rem);
+    --media-bleed-start: 8%;
+    --media-block-width: 108%;
+  }
+
+}
+
+/* ==========================================================================
+   MOBILE — single editorial column, ordinary document scrolling
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  :root {
+    /* The project index stays the largest type here too, so the reference
+       hierarchy (projects dominate the name) survives the single column. */
+    --fs-project: clamp(1.6875rem, 8.6vw, 3rem);
+    --fs-name: clamp(1.375rem, 6.5vw, 2.3125rem);
+    --fs-hand: clamp(1.3125rem, 5.8vw, 1.75rem);
+    --fs-link: clamp(0.75rem, 3.2vw, 0.875rem);
+    --tagline-indent: 40%;
+    --mobile-rail-inset: clamp(0.625rem, 3.2vw, 1rem);
+    --about-indent: clamp(1.75rem, 10vw, 2.75rem);
+    --index-gap: 1rem;
+    --contact-label-to-links: clamp(0.5rem, 2vw, 1rem);
+    /* The stacked column sets its own rhythm; no lift needed off the floor. */
+    --contact-lift: 0px;
+    --about-text-width: 100%;
+    --tagline-to-name: clamp(1.5rem, 4.5vw, 2.75rem);
+    /* Larger Cactus Jack, tighter vertical rhythm — closer to the Figma. */
+    --lh-hand: 0.72;
+    --lh-hand-body: 0.78;
+    --about-paragraph-gap: clamp(0.4375rem, 2vw, 0.625rem);
+    /* Generous top air and comfortable side margins on the reference frame. */
+    --page-pad-x: clamp(1.25rem, 5.5vw, 1.75rem);
+    --page-pad-top: clamp(2rem, 8vw, 3rem);
+    --page-pad-bottom: clamp(2rem, 8vw, 3rem);
+    /* No bleed on mobile: the media stays inside the page padding. */
+    --media-bleed-start: 0%;
+    --media-block-width: 100%;
+    /* One column: both images take the full measure. */
+    --media-gif-scale: 1;
+    --media-gap-between: clamp(1.25rem, 6vw, 2.5rem);
+    --media-gap-after: clamp(1.75rem, 8vw, 3rem);
+    --media-gap-title: clamp(1rem, 5vw, 2rem);
+    --stack-gap-about-to-index: clamp(4.75rem, 18vw, 7rem);
+    --contact-fixed-bottom: clamp(1.5rem, 6vw, 2.5rem);
+    /* Open-project overlay: narrower media, centered over the fixed UI. */
+    --mobile-overlay-media-width: 86vw;
+    --mobile-overlay-media-gap: clamp(1.5rem, 5vw, 2.75rem);
+  }
+
+  /* The left block dissolves into the page grid so the stacked order stays
+     identity -> about -> index -> contact. */
+  .aside,
+  .aside__inner {
+    display: contents;
+  }
+
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "identity"
+      "about"
+      "index";
+    row-gap: 0;
+    align-content: start;
+  }
+
+  .identity__name {
+    margin-inline-start: 0;
+  }
+
+  .about {
+    align-self: auto;
+    margin-block-start: clamp(1.875rem, 6.5vw, 3rem);
+  }
+
+  .about__body {
+    max-width: var(--about-text-width);
+  }
+
+  .index__nav {
+    padding-inline-start: var(--mobile-rail-inset);
+  }
+
+  .index {
+    margin-block-start: var(--stack-gap-about-to-index);
+  }
+
+  .contact {
+    position: fixed;
+    left: calc(var(--page-pad-x) + var(--mobile-rail-inset));
+    bottom: var(--contact-fixed-bottom);
+    z-index: 2;
+    margin: 0;
+  }
+
+  /* Portrait documentation photographs are unreadable two-up on a phone, so
+     the grid unrolls into the same single column as everything else. */
+  .media-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Full-width media, native aspect ratios, no desktop bleed or GIF offset. */
+  .media--scan,
+  .media--wide,
+  .media--video,
+  .media-grid,
+  .media--gif {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  /* Desktop-only GIF composition resets to a simple vertical stack. */
+  #project-media-double-life,
+  #project-media-illustrations {
+    --media-gif-scale: 1;
+    --media-gif-width: 100%;
+    --media-gap-between: clamp(1.25rem, 6vw, 2.5rem);
+  }
+
+  /* Open project: in-flow list stays put; media lives in a fixed scroll layer. */
+  .index--open .index__media:not(:empty) {
+    margin-block-start: 0;
+  }
+
+  .index--open .index__nav {
+    z-index: 1;
+  }
+
+  /* In-flow rows carry every title and number — no desktop overlay duplicates. */
+  .index--open .index__numbers,
+  .index--open .index__titles {
+    display: none;
+  }
+
+  .index--open .project:not(.is-active) .project__title {
+    visibility: visible;
+  }
+
+  .index--open .project__number {
+    color: var(--foreground);
+  }
+
+  .index--open .project__link {
+    pointer-events: auto;
+  }
+
+  /* Lock the page; only the media layer scrolls. */
+  html.page--mobile-project-open {
+    overflow: hidden;
+    height: 100%;
+  }
+
+  html.page--mobile-project-open body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  /* Lift the index stacking context above fixed contact while a project is open. */
+  html.page--mobile-project-open .index {
+    z-index: 4;
+  }
+
+  /* Full-viewport scroll shell — transparent except for the media itself. */
+  html.page--mobile-project-open .index__media:not(:empty) {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    scrollbar-width: none;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  html.page--mobile-project-open .index__media:not(:empty)::-webkit-scrollbar {
+    display: none;
+  }
+
+  html.page--mobile-project-open .index__media .project__expanded {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-block-start: 0;
+    pointer-events: none;
+  }
+
+  /* Transparent lead-in keeps the fixed UI visible and tappable at scroll top. */
+  html.page--mobile-project-open .index__media .project__expanded::before {
+    content: "";
+    display: block;
+    align-self: stretch;
+    height: var(--mobile-media-offset, 0px);
+    pointer-events: none;
+  }
+
+  html.page--mobile-project-open .index__media .media--scan,
+  html.page--mobile-project-open .index__media .media--wide,
+  html.page--mobile-project-open .index__media .media--video,
+  html.page--mobile-project-open .index__media .media--gif,
+  html.page--mobile-project-open .index__media .media-grid {
+    width: var(--mobile-overlay-media-width);
+    max-width: 88vw;
+    margin-inline: auto;
+    margin-inline-start: auto;
+  }
+
+  html.page--mobile-project-open .index__media .media + .media,
+  html.page--mobile-project-open .index__media .media + .media-grid,
+  html.page--mobile-project-open .index__media .media-grid + .media,
+  html.page--mobile-project-open .index__media .media-grid + .media-grid {
+    margin-block-start: var(--mobile-overlay-media-gap);
+  }
+
+  html.page--mobile-project-open #project-media-double-life,
+  html.page--mobile-project-open #project-media-illustrations {
+    --media-gif-width: var(--mobile-overlay-media-width);
+    --media-gap-between: var(--mobile-overlay-media-gap);
+  }
+
+  /* Double Life + Illustrations: pull the GIF up toward the scan above it. */
+  html.page--mobile-project-open #project-media-double-life .media--scan + .media--gif,
+  html.page--mobile-project-open #project-media-illustrations .media--scan + .media--gif {
+    margin-block-start: clamp(-1.25rem, -3vw, -0.375rem);
+  }
+
+  html.page--mobile-project-open .index__media .media,
+  html.page--mobile-project-open .index__media .media-grid {
+    pointer-events: auto;
+  }
+
+}
+

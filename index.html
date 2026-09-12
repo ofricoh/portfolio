@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ofri cohen — graphic &amp; web designer</title>
+    <meta
+      name="description"
+      content="Portfolio of ofri cohen, graphic and web designer."
+    />
+    <link rel="stylesheet" href="styles/fonts.css" />
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <div class="page">
+      <!-- Everything on the left is one block so it can be pinned to the
+           viewport as a unit while the document scrolls behind it. -->
+      <aside class="aside">
+        <div class="aside__inner">
+          <header class="identity">
+            <p class="hand identity__category" data-slot="category">
+              GRAPHIC &amp; WEB<br />DESIGNER
+            </p>
+            <h1 class="identity__name">
+              <button type="button" class="identity__home">OFRI COHEN</button>
+            </h1>
+          </header>
+
+          <!-- One slot for both the About placeholder and the active
+               project's description, so the two always occupy the same
+               spatial area. -->
+          <section class="about" aria-label="About" data-slot="about">
+            <div class="about__body">
+              <p class="hand">
+                Hi - I'm Ofri, a graphic and web designer based in Jerusalem.
+              </p>
+              <p class="hand">
+                I'm interested in ideas that can grow into a whole visual
+                language, and I like figuring out what each project needs and
+                building around it. I work across print, digital design and
+                interaction, often mixing different formats along the way.
+              </p>
+              <p class="hand">
+                B.Des in Visual Communication, Bezalel Academy of Arts and
+                Design, Jerusalem.
+              </p>
+            </div>
+          </section>
+
+          <footer class="contact">
+            <p class="hand contact__label">LET'S TALK</p>
+            <ul class="contact__links">
+              <li>
+                <a
+                  class="contact__link"
+                  href="https://www.instagram.com/cohen.ofri/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >INSTAGRAM</a
+                >
+              </li>
+              <li>
+                <a
+                  class="contact__link"
+                  href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=ofric912@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >EMAIL</a
+                >
+              </li>
+            </ul>
+          </footer>
+        </div>
+      </aside>
+
+      <nav class="index" aria-label="Projects" data-slot="index"></nav>
+    </div>
+
+    <script src="src/main.js" defer></script>
+  </body>
+</html>

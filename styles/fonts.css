@@ -1,0 +1,65 @@
+/* Local faces only — every src below points at a file that exists in
+   /assets/fonts/, so the browser never has to fall back to a system font.
+   font-display: block keeps the text invisible for the brief moment the
+   file is loading instead of flashing a substitute face. */
+
+/* ==========================================================================
+   HELVETICA — the typeset voice
+
+   Four drawn faces, declared at the weights they were actually cut for, so
+   the browser never has to slant or embolden anything itself. Declaring the
+   family here also means the page uses these files rather than whatever
+   Helvetica happens to be installed on the reader's machine.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Helvetica";
+  src: url("../assets/fonts/Helvetica.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Helvetica";
+  src: url("../assets/fonts/Helvetica-Oblique.ttf") format("truetype");
+  font-weight: 400;
+  font-style: oblique;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Helvetica";
+  src: url("../assets/fonts/Helvetica-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Helvetica";
+  src: url("../assets/fonts/Helvetica-BoldOblique.ttf") format("truetype");
+  font-weight: 700;
+  font-style: oblique;
+  font-display: block;
+}
+
+/* ==========================================================================
+   CACTUS JACK — the handwritten voice
+   ========================================================================== */
+
+@font-face {
+  font-family: "Cactus Jack";
+  src: url("../assets/fonts/Cactus%20Jack.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Cactus Jack Alternate";
+  src: url("../assets/fonts/Cactus%20Jack%20Alternate.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
