@@ -100,8 +100,6 @@ const PROJECTS = [
       href: "https://ofricoh.github.io/houdou-nisbi/index.html",
       label: "houdou nisbi",
     },
-    // Mobile only: the video starts in the description area, above the titles.
-    mobileMediaAnchor: "description",
     media: [
       {
         variant: "video",
@@ -175,8 +173,6 @@ const PROJECTS = [
     description: [
       "A website bringing together a selection of works by dancer and choreographer Trisha Brown. The project was created as part of a Web Design course at Bezalel.",
     ],
-    // Mobile only: the video starts in the description area, above the titles.
-    mobileMediaAnchor: "description",
     media: [
       {
         variant: "video",
@@ -686,21 +682,12 @@ function measureMobileMediaOffset() {
     slots.index?.style.removeProperty("--mobile-media-offset");
     return;
   }
+  const activeRow = indexParts.list?.querySelector(".project.is-active");
+  if (!activeRow) return;
   const gap =
     parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--media-gap-title")) ||
     0;
-  const project = findProject(state.activeProject);
-  // 03 and 05 begin the same scroll layer at the top of the description
-  // slot, so the video can sit above the titles without moving any type.
-  const fromDescription = project && project.mobileMediaAnchor === "description";
-  const anchor = fromDescription
-    ? slots.about
-    : indexParts.list?.querySelector(".project.is-active");
-  if (!anchor) return;
-  const edge = fromDescription
-    ? anchor.getBoundingClientRect().top
-    : anchor.getBoundingClientRect().bottom;
-  const offset = edge + (fromDescription ? 0 : gap);
+  const offset = activeRow.getBoundingClientRect().bottom + gap;
   slots.index.style.setProperty("--mobile-media-offset", `${Math.max(0, offset)}px`);
 }
 

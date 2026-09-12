@@ -733,8 +733,10 @@ video {
     --media-gap-after: clamp(1.75rem, 8vw, 3rem);
     --media-gap-title: clamp(1rem, 5vw, 2rem);
     /* Same visual beat as the name-to-About gap, reused between the
-       reserved description slot, the project list, and LET'S TALK. */
+       reserved description slot and the project list. */
     --stack-gap: clamp(1.875rem, 6.5vw, 3rem);
+    /* Half again that beat, so LET'S TALK sits a little further below 07. */
+    --stack-gap-index-to-contact: clamp(2.8125rem, 9.75vw, 4.5rem);
     /* Open-project overlay: narrower media, centered over the fixed UI. */
     --mobile-overlay-media-width: 86vw;
     --mobile-overlay-media-gap: clamp(1.5rem, 5vw, 2.75rem);
@@ -808,7 +810,7 @@ video {
      moves it out of the left column and onto the page for this breakpoint.
      Indented onto the same rail as the project titles. */
   .contact {
-    margin: var(--stack-gap) 0 0;
+    margin: var(--stack-gap-index-to-contact) 0 0;
     padding-inline-start: var(--mobile-rail-inset);
   }
 
