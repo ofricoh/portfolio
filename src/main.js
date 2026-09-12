@@ -631,7 +631,15 @@ function syncProjectMedia(activeId) {
 function syncMobileProjectScroll() {
   const shouldLock = isMobileViewport() && state.activeProject !== null;
   document.documentElement.classList.toggle("page--mobile-project-open", shouldLock);
-  document.body.style.top = shouldLock ? "0px" : "";
+  if (shouldLock) {
+    document.body.style.top = "0px";
+    return;
+  }
+  document.body.style.top = "";
+  document.body.style.position = "";
+  document.body.style.width = "";
+  document.body.style.inset = "";
+  document.body.style.overflow = "";
 }
 
 function measureMobileMediaOffset() {

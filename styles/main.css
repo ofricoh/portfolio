@@ -740,7 +740,7 @@ video {
   }
 
   /* The left block dissolves into the page grid so the stacked order stays
-     identity -> about -> index -> contact. */
+     identity -> about -> index (contact is fixed to the viewport). */
   .aside,
   .aside__inner {
     display: contents;
@@ -776,14 +776,40 @@ video {
 
   .index {
     margin-block-start: var(--stack-gap-about-to-index);
+    z-index: 2;
+  }
+
+  .identity,
+  .about {
+    position: relative;
+    z-index: 2;
   }
 
   .contact {
     position: fixed;
     left: calc(var(--page-pad-x) + var(--mobile-rail-inset));
     bottom: var(--contact-fixed-bottom);
-    z-index: 2;
+    z-index: 1;
     margin: 0;
+  }
+
+  /* Home: ordinary document scroll — no viewport trap or scroll lock. */
+  html:not(.page--mobile-project-open) {
+    overflow-y: auto;
+    height: auto;
+  }
+
+  html:not(.page--mobile-project-open) body {
+    position: static;
+    overflow-y: visible;
+    height: auto;
+    overscroll-behavior: auto;
+  }
+
+  html:not(.page--mobile-project-open) .page {
+    min-height: 100svh;
+    height: auto;
+    overflow: visible;
   }
 
   /* Portrait documentation photographs are unreadable two-up on a phone, so
