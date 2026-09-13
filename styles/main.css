@@ -622,6 +622,10 @@ video {
   font-weight: 400;
 }
 
+.contact__links-break {
+  flex-basis: 100%;
+}
+
 .contact__link {
   text-decoration: none;
   color: var(--foreground);
