@@ -781,8 +781,9 @@ video {
   .about {
     align-self: auto;
     margin-block-start: var(--stack-gap);
-    /* Held at the Home About height so the project list starts at the same
-       y in every state. Shorter project copy leaves the rest of the slot empty.
+    /* Held at a reserved height so the project list does not jump. Home uses
+       the intro height; an open project uses the tallest description so the
+       full copy stays visible. Shorter copy leaves the rest of the slot empty.
        Height (not only min-height) so a slightly taller project cannot grow
        the slot and shift the list. */
     height: var(--about-reserved-height, auto);

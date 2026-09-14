@@ -212,8 +212,7 @@ const PROJECTS = [
     title: "SHESHET",
     category: "WEB DESIGN",
     description: [
-      "An interactive listening experience for the album Sheshet, created as my graduation project at Bezalel.",
-      "The website explores the meeting point between analog and digital, translating each track into synchronized sound, motion, and physical pen-plotter drawings.",
+      "An interactive listening experience for the album Sheshet, created as my graduation project at Bezalel Academy. The website explores the meeting point between analog and digital, translating each track into synchronized sound, motion, and physical pen-plotter drawings while preserving the tactile experience of listening to a record.",
     ],
     media: [
       {
@@ -740,10 +739,13 @@ function syncContactPlacement() {
 /* --- Mobile: reserved description height ---------------------------------
    Stacked, the project list sits directly under the one slot that carries
    both the About text and the open project's description, so every change of
-   text there used to move the list. The slot is held at the Home About
-   height — currently the longest text that appears there — measured at the
-   live width so it stays true at any viewport size and once the webfont has
-   loaded. Shorter project copy leaves the rest of the slot empty.
+   text there used to move the list.
+
+   On Home the slot hugs the intro, so the list sits immediately under it.
+   While a project is open the slot is held at the tallest description (or
+   the intro, if that is taller), measured at the live width so every
+   project's full copy is visible and switching projects does not jump the
+   list. Shorter copy leaves the rest of the slot empty.
    ------------------------------------------------------------------------ */
 
 let aboutProbe = null;
@@ -769,7 +771,18 @@ function measureAboutReserve() {
   const probe = aboutProbeElement();
   slots.about.append(probe);
   probe.replaceChildren(AboutBody(null));
-  const height = probe.getBoundingClientRect().height;
+  let height = probe.getBoundingClientRect().height;
+
+  // Open-project: size to the tallest description so none of the copy is
+  // hidden under the list. Home keeps the intro height so the list does
+  // not sit below an empty gap.
+  if (state.activeProject) {
+    visibleProjects().forEach((project) => {
+      probe.replaceChildren(AboutBody(project));
+      height = Math.max(height, probe.getBoundingClientRect().height);
+    });
+  }
+
   probe.replaceChildren();
   probe.remove();
 
@@ -802,6 +815,7 @@ function render() {
 
   syncProjectRows(state.activeProject);
   syncProjectMedia(state.activeProject);
+  if (isMobileViewport()) measureAboutReserve();
   syncMobileProjectScroll();
   syncMobileMediaOffset();
 }
