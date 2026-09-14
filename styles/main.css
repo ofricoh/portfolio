@@ -64,7 +64,7 @@
   --tagline-to-name: clamp(1rem, 2.84vw, 3.375rem); /* ref: 43px */
   --contact-label-to-links: clamp(0.9rem, 1.56vw, 2rem); /* ref: 23px — LET'S TALK sits close to the links */
   --contact-lift: clamp(0.75rem, 1.6vw, 2rem); /* raises the whole contact block off the page floor */
-  --contact-links-gap: clamp(1rem, 2.05vw, 2.5rem); /* ref: 31px */
+  --contact-links-gap: clamp(0.75rem, 1.45vw, 1.75rem);
 
   /* ---- Project index internals ---- */
   --index-gap: clamp(1.5rem, 2.5vw, 3rem); /* minimum title-to-number gap */
@@ -563,7 +563,8 @@ video {
 .media--wide + .media-grid,
 .media--scan + .media--scan,
 .media--scan + .media-grid,
-.media--gif + .media-grid {
+.media--gif + .media-grid,
+.media--video + .media--video {
   margin-block-start: var(--media-gap-grid);
 }
 
@@ -598,6 +599,13 @@ video {
   --media-gap-between: clamp(-10rem, -12vw, -7rem);
 }
 
+/* Sheshet only — crop 2px from the top of each video without leaving a gap. */
+#project-media-sheshet .media--video {
+  clip-path: inset(2px 0 0 0);
+  translate: 0 -2px;
+  margin-block-end: -2px;
+}
+
 /* ==========================================================================
    CONTACT
    ========================================================================== */
@@ -614,7 +622,7 @@ video {
 
 .contact__links {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   column-gap: var(--contact-links-gap);
   row-gap: 0.5em;
   font-size: var(--fs-link);
@@ -622,11 +630,8 @@ video {
   font-weight: 400;
 }
 
-.contact__links-break {
-  flex-basis: 100%;
-}
-
 .contact__link {
+  white-space: nowrap;
   text-decoration: none;
   color: var(--foreground);
 }

@@ -72,11 +72,12 @@ const PROJECTS = [
     title: "IMERASINGYOU",
     category: "WEB DESIGN",
     description: [
-      "An interactive website based on Eternal Sunshine of the Spotless Mind, offering an alternative way to experience the film by listening while navigating its screenplay. Characters can be erased by deleting their text, turning memory, erasure, and escapism into part of the viewing experience.",
+      "An interactive website based on Eternal Sunshine of the Spotless Mind, offering an alternative way to experience the film by listening while navigating its screenplay.",
+      "Characters can be erased by deleting their text, turning memory, erasure, and escapism into part of the viewing experience",
     ],
     link: {
       href: "https://ofricoh.github.io/imerasingyouandimhappy/",
-      label: "im erasing you and im happy",
+      label: "Visit the site",
     },
     media: [
       {
@@ -94,11 +95,11 @@ const PROJECTS = [
     title: "HOUDOU NISBI",
     category: "WEB DESIGN",
     description: [
-      "An interactive listening experience for the album Houdou Nisbi by Ziad Rahbani, translating its sound and visual language into a digital space.",
+      "An interactive listening experience for the album Houdou Nisbi by Ziad Rahbani, translating its sound and visual language into a digital space",
     ],
     link: {
       href: "https://ofricoh.github.io/houdou-nisbi/index.html",
-      label: "houdou nisbi",
+      label: "Visit the site",
     },
     media: [
       {
@@ -171,7 +172,8 @@ const PROJECTS = [
     title: "TRISHA BROWN",
     category: "WEB DESIGN",
     description: [
-      "A website bringing together a selection of works by dancer and choreographer Trisha Brown. The project was created as part of a Web Design course at Bezalel.",
+      "A website bringing together a selection of works by dancer and choreographer Trisha Brown.",
+      "The project was created as part of a Web Design course at Bezalel.",
     ],
     media: [
       {
@@ -189,7 +191,8 @@ const PROJECTS = [
     title: "ALBUMS",
     category: "GRAPHIC DESIGN",
     description: [
-      "An ongoing personal project exploring familiar and existing album covers through a minimal visual language. Each cover is reduced to its essential shapes and colors, breaking down the recognizable graphic elements of the original artwork into a simplified composition.",
+      "An ongoing personal project exploring familiar album covers through a minimal visual language.",
+      "Each cover is reduced to its essential shapes and colors, breaking down the recognizable graphic elements of the original artwork into a simplified composition.",
     ],
     media: [
       {
@@ -204,8 +207,34 @@ const PROJECTS = [
     ],
   },
   {
-    id: "illustrations",
+    id: "sheshet",
     number: "07",
+    title: "SHESHET",
+    category: "WEB DESIGN",
+    description: [
+      "An interactive listening experience for the album Sheshet, created as my graduation project at Bezalel.",
+      "The website explores the meeting point between analog and digital, translating each track into synchronized sound, motion, and physical pen-plotter drawings.",
+    ],
+    media: [
+      {
+        variant: "video",
+        src: "assets/works/sheshet/sheshet1.mp4",
+        width: 2994,
+        height: 1700,
+        alt: "Screen recording of the Sheshet website.",
+      },
+      {
+        variant: "video",
+        src: "assets/works/sheshet/sheshet2.mp4",
+        width: 2994,
+        height: 1700,
+        alt: "Second screen recording of the Sheshet website.",
+      },
+    ],
+  },
+  {
+    id: "illustrations",
+    number: "08",
     title: "ILLUSTRATIONS",
     category: "ILLUSTRATION",
     description: [
@@ -235,7 +264,6 @@ const DEFAULT_CATEGORY = ["GRAPHIC & WEB", "DESIGNER"];
 const ABOUT_PARAGRAPHS = [
   "Hi - I'm Ofri, a graphic and web designer based in Jerusalem.",
   "I'm interested in ideas that can grow into a whole visual language. I work across print, digital design and interaction, often mixing different formats along the way.",
-  "B.Des in Visual Communication, Bezalel Academy of Arts and Design, Jerusalem.",
 ];
 
 /* The hand-drawn mark that reads as "hovered" and as "open". */
@@ -304,24 +332,21 @@ function AboutBody(project) {
   const body = document.createElement("div");
   body.className = "about__body";
 
-  if (description && project.link) {
+  (description || ABOUT_PARAGRAPHS).forEach((text, i, list) => {
     const p = document.createElement("p");
     p.className = "hand";
-    const anchor = document.createElement("a");
-    anchor.className = "about__link";
-    anchor.href = project.link.href;
-    anchor.target = "_blank";
-    anchor.rel = "noopener noreferrer";
-    anchor.append(document.createTextNode(project.link.label || project.link.href));
-    anchor.append(ProjectLine());
-    p.append(anchor);
-    body.append(p);
-  }
-
-  (description || ABOUT_PARAGRAPHS).forEach((text) => {
-    const p = document.createElement("p");
-    p.className = "hand";
-    p.textContent = text;
+    const last = Boolean(description && project.link && i === list.length - 1);
+    p.append(document.createTextNode(last ? `${text} - ` : text));
+    if (last) {
+      const anchor = document.createElement("a");
+      anchor.className = "about__link";
+      anchor.href = project.link.href;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+      anchor.append(document.createTextNode(project.link.label || project.link.href));
+      anchor.append(ProjectLine());
+      p.append(anchor);
+    }
     body.append(p);
   });
 
